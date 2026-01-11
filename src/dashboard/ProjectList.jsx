@@ -8,14 +8,20 @@ export default function ProjectList({ onSelect }) {
     api.get("/projects").then((res) => setProjects(res.data));
   }, []);
 
+  if (projects.length === 0) {
+    return <p>No projects found</p>;
+  }
+
   return (
     <div>
       <h3>Your Projects</h3>
-      {projects.map((p) => (
-        <button key={p._id} onClick={() => onSelect(p)}>
-          {p.name}
-        </button>
-      ))}
+      <ul>
+        {projects.map((project) => (
+          <li key={project._id} style={{ marginBottom: "8px" }}>
+            <button onClick={() => onSelect(project)}>{project.name}</button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

@@ -3,16 +3,25 @@ import ProjectList from "./ProjectList";
 import MLAnalysis from "./MLAnalysis";
 
 export default function Dashboard() {
-  const [project, setProject] = useState(null);
+  const [selectedProject, setSelectedProject] = useState(null);
 
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
       <h1>AI Log Intelligence Dashboard</h1>
 
-      {!project ? (
-        <ProjectList onSelect={setProject} />
+      {!selectedProject ? (
+        <ProjectList onSelect={setSelectedProject} />
       ) : (
-        <MLAnalysis project={project} />
+        <>
+          <button
+            onClick={() => setSelectedProject(null)}
+            style={{ marginBottom: "15px" }}
+          >
+            ← Back to Projects
+          </button>
+
+          <MLAnalysis project={selectedProject} />
+        </>
       )}
     </div>
   );
