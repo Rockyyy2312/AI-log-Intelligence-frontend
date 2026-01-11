@@ -1,10 +1,22 @@
 import { useEffect, useState } from "react";
 import api from "../api/api";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
+
+const COLORS = ["#16a34a", "#dc2626"];
 
 const getRiskColor = (status) => {
-  if (status === "Healthy") return "#16a34a"; // green
-  if (status === "Degraded") return "#f59e0b"; // amber
-  return "#dc2626"; // red
+  if (status === "Healthy") return "#16a34a";
+  if (status === "Degraded") return "#f59e0b";
+  return "#dc2626";
 };
 
 export default function MLAnalysis({ project }) {
@@ -25,9 +37,25 @@ export default function MLAnalysis({ project }) {
   if (loading) return <p>Loading system analysis...</p>;
   if (!analysis) return <p style={{ color: "red" }}>Failed to load analysis</p>;
 
+  const barData = [
+    { name: "Errors", value: analysis.summary.error_logs },
+    {
+      name: "Non Errors",
+      value: analysis.summary.total_logs - analysis.summary.error_logs,
+    },
+  ];
+
+  const pieData = [
+    { name: "Errors", value: analysis.summary.error_logs },
+    {
+      name: "Non Errors",
+      value: analysis.summary.total_logs - analysis.summary.error_logs,
+    },
+  ];
+
   return (
-    <div style={{ display: "grid", gap: "20px", marginTop: "20px" }}>
-      {/* SUMMARY CARDS */}
+    <div style={{ display: "grid", gap: "24px", marginTop: "24px" }}>
+      {/* METRIC CARDS */}
       <div
         style={{
           display: "grid",
@@ -57,6 +85,40 @@ export default function MLAnalysis({ project }) {
         >
           {analysis.risk.status} (Score: {analysis.risk.score})
         </span>
+      </div>
+
+      {/* CHARTS */}
+      <div
+        style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}
+      >
+        <div style={cardStyle}>
+          <h3>Log Distribution (Bar)</h3>
+          <BarChart width={300} height={250} data={barData}>
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="value" fill="#2563eb" />
+          </BarChart>
+        </div>
+
+        <div style={cardStyle}>
+          <h3>Error vs Non-Error (Pie)</h3>
+          <PieChart width={300} height={250}>
+            <Pie
+              data={pieData}
+              dataKey="value"
+              cx="50%"
+              cy="50%"
+              outerRadius={80}
+              label
+            >
+              {pieData.map((_, index) => (
+                <Cell key={index} fill={COLORS[index]} />
+              ))}
+            </Pie>
+            <Tooltip />
+          </PieChart>
+        </div>
       </div>
 
       {/* PATTERNS */}
