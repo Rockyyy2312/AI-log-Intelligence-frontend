@@ -11,7 +11,7 @@ import {
   Cell,
 } from "recharts";
 
-const COLORS = ["#16a34a", "#dc2626"];
+const COLORS = ["#22c55e", "#ef4444"];
 
 export default function MLAnalysis({ project }) {
   const [analysis, setAnalysis] = useState(null);
@@ -39,20 +39,15 @@ export default function MLAnalysis({ project }) {
     },
   ];
 
-  const pieData = barData;
-
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-3 gap-4">
-        <MetricCard title="Total Logs" value={analysis.summary.total_logs} />
-        <MetricCard title="Error Logs" value={analysis.summary.error_logs} />
-        <MetricCard
-          title="Error Rate"
-          value={`${analysis.summary.error_rate}%`}
-        />
+        <Metric title="Total Logs" value={analysis.summary.total_logs} />
+        <Metric title="Error Logs" value={analysis.summary.error_logs} />
+        <Metric title="Error Rate" value={`${analysis.summary.error_rate}%`} />
       </div>
 
-      <div className="bg-white p-4 rounded shadow">
+      <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">
         <h3 className="font-semibold mb-2">System Health</h3>
         <span className="px-3 py-1 rounded-full bg-blue-600 text-white">
           {analysis.risk.status} (Score: {analysis.risk.score})
@@ -60,28 +55,28 @@ export default function MLAnalysis({ project }) {
       </div>
 
       <div className="grid grid-cols-2 gap-6">
-        <div className="bg-white p-4 rounded shadow">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">
           <h3 className="mb-2 font-semibold">Log Distribution</h3>
           <BarChart width={300} height={250} data={barData}>
             <XAxis dataKey="name" />
             <YAxis />
             <Tooltip />
-            <Bar dataKey="value" fill="#2563eb" />
+            <Bar dataKey="value" fill="#3b82f6" />
           </BarChart>
         </div>
 
-        <div className="bg-white p-4 rounded shadow">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">
           <h3 className="mb-2 font-semibold">Error Ratio</h3>
           <PieChart width={300} height={250}>
             <Pie
-              data={pieData}
+              data={barData}
               dataKey="value"
               cx="50%"
               cy="50%"
               outerRadius={80}
               label
             >
-              {pieData.map((_, i) => (
+              {barData.map((_, i) => (
                 <Cell key={i} fill={COLORS[i]} />
               ))}
             </Pie>
@@ -90,7 +85,7 @@ export default function MLAnalysis({ project }) {
         </div>
       </div>
 
-      <div className="bg-white p-4 rounded shadow">
+      <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">
         <h3 className="font-semibold mb-2">Recurring Issues</h3>
         {analysis.patterns.length === 0 ? (
           <p>No recurring issues detected 🎉</p>
@@ -108,9 +103,9 @@ export default function MLAnalysis({ project }) {
   );
 }
 
-function MetricCard({ title, value }) {
+function Metric({ title, value }) {
   return (
-    <div className="bg-white p-4 rounded shadow">
+    <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">
       <p className="text-sm text-gray-500">{title}</p>
       <h2 className="text-2xl font-bold">{value}</h2>
     </div>

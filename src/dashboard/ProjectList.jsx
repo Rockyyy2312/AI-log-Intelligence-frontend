@@ -21,7 +21,7 @@ export default function ProjectList({ onSelect }) {
           <div
             key={project._id}
             onClick={() => onSelect(project)}
-            className="bg-white p-4 rounded shadow cursor-pointer hover:bg-gray-50"
+            className="bg-white dark:bg-gray-800 p-4 rounded shadow cursor-pointer hover:opacity-90"
           >
             <strong>{project.name}</strong>
           </div>
