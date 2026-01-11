@@ -18,41 +18,41 @@ export default function Login() {
   };
 
   return (
-    <div
-      style={{
-        maxWidth: "350px",
-        margin: "100px auto",
-        padding: "20px",
-        border: "1px solid #ddd",
-        borderRadius: "8px",
-      }}
-    >
-      <h2>Login</h2>
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="bg-white p-8 rounded-lg shadow-md w-96">
+        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
 
-      <input
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <br />
-      <br />
+        <input
+          className="w-full p-2 border rounded mb-3"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-      <input
-        placeholder="Password"
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <br />
-      <br />
+        <input
+          className="w-full p-2 border rounded mb-4"
+          placeholder="Password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
-      <button onClick={handleLogin}>Login</button>
+        <button
+          onClick={handleLogin}
+          className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+        >
+          Login
+        </button>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        {error && <p className="text-red-500 mt-3">{error}</p>}
 
-      <p>
-        Don’t have an account? <Link to="/register">Register</Link>
-      </p>
+        <p className="text-center mt-4">
+          Don’t have an account?{" "}
+          <Link to="/register" className="text-blue-600 underline">
+            Register
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }

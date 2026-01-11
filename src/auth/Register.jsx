@@ -21,50 +21,49 @@ export default function Register() {
   };
 
   return (
-    <div
-      style={{
-        maxWidth: "350px",
-        margin: "100px auto",
-        padding: "20px",
-        border: "1px solid #ddd",
-        borderRadius: "8px",
-      }}
-    >
-      <h2>Register</h2>
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="bg-white p-8 rounded-lg shadow-md w-96">
+        <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
 
-      <input
-        placeholder="Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
-      <br />
-      <br />
+        <input
+          className="w-full p-2 border rounded mb-3"
+          placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
 
-      <input
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <br />
-      <br />
+        <input
+          className="w-full p-2 border rounded mb-3"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-      <input
-        placeholder="Password"
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <br />
-      <br />
+        <input
+          className="w-full p-2 border rounded mb-4"
+          placeholder="Password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
-      <button onClick={handleRegister}>Register</button>
+        <button
+          onClick={handleRegister}
+          className="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700"
+        >
+          Register
+        </button>
 
-      {message && <p style={{ color: "green" }}>{message}</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        {message && <p className="text-green-600 mt-3">{message}</p>}
+        {error && <p className="text-red-500 mt-3">{error}</p>}
 
-      <p>
-        Already have an account? <Link to="/">Login</Link>
-      </p>
+        <p className="text-center mt-4">
+          Already have an account?{" "}
+          <Link to="/" className="text-blue-600 underline">
+            Login
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }
