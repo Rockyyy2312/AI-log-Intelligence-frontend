@@ -13,15 +13,24 @@ export default function ProjectList({ onSelect }) {
   }
 
   return (
-    <div>
-      <h3>Your Projects</h3>
-      <ul>
-        {projects.map((project) => (
-          <li key={project._id} style={{ marginBottom: "8px" }}>
-            <button onClick={() => onSelect(project)}>{project.name}</button>
-          </li>
-        ))}
-      </ul>
+    <div style={{ display: "grid", gap: "12px" }}>
+      <h3>Select a Project</h3>
+
+      {projects.map((project) => (
+        <div
+          key={project._id}
+          onClick={() => onSelect(project)}
+          style={{
+            padding: "16px",
+            border: "1px solid #e5e7eb",
+            borderRadius: "8px",
+            cursor: "pointer",
+            background: "#fafafa",
+          }}
+        >
+          <strong>{project.name}</strong>
+        </div>
+      ))}
     </div>
   );
 }

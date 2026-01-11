@@ -1,25 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./auth/Login";
-import Dashboard from "./dashboard/Dashboard";
-
-function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-      </Routes>
-    </BrowserRouter>
-  );
-}
-
-export default App;
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./auth/Login";
 import Register from "./auth/Register";
 import Dashboard from "./dashboard/Dashboard";
 
-function App() {
+export default function App() {
   return (
     <BrowserRouter>
       <Routes>
@@ -30,5 +14,3 @@ function App() {
     </BrowserRouter>
   );
 }
-
-export default App;

@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import api from "../api/api";
 
 const getRiskColor = (status) => {
-  if (status === "Healthy") return "green";
-  if (status === "Degraded") return "orange";
-  return "red";
+  if (status === "Healthy") return "#16a34a"; // green
+  if (status === "Degraded") return "#f59e0b"; // amber
+  return "#dc2626"; // red
 };
 
 export default function MLAnalysis({ project }) {
@@ -22,45 +22,52 @@ export default function MLAnalysis({ project }) {
       .catch(() => setLoading(false));
   }, [project]);
 
-  if (loading) return <p>Loading analysis...</p>;
-  if (!analysis) return <p>No analysis available</p>;
+  if (loading) return <p>Loading system analysis...</p>;
+  if (!analysis) return <p style={{ color: "red" }}>Failed to load analysis</p>;
 
   return (
-    <div style={{ maxWidth: "700px", display: "grid", gap: "20px" }}>
-      {/* SUMMARY */}
-      <div>
-        <h3>Log Summary</h3>
-        <p>
-          Total Logs: <strong>{analysis.summary.total_logs}</strong>
-        </p>
-        <p>
-          Error Logs: <strong>{analysis.summary.error_logs}</strong>
-        </p>
-        <p>
-          Error Rate: <strong>{analysis.summary.error_rate}%</strong>
-        </p>
+    <div style={{ display: "grid", gap: "20px", marginTop: "20px" }}>
+      {/* SUMMARY CARDS */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3, 1fr)",
+          gap: "16px",
+        }}
+      >
+        <MetricCard title="Total Logs" value={analysis.summary.total_logs} />
+        <MetricCard title="Error Logs" value={analysis.summary.error_logs} />
+        <MetricCard
+          title="Error Rate"
+          value={`${analysis.summary.error_rate}%`}
+        />
       </div>
 
       {/* RISK */}
-      <div>
+      <div style={cardStyle}>
         <h3>System Health</h3>
-        <p>
-          Risk Score: <strong>{analysis.risk.score}</strong>
-        </p>
-        <p style={{ color: getRiskColor(analysis.risk.status) }}>
-          Status: <strong>{analysis.risk.status}</strong>
-        </p>
+        <span
+          style={{
+            padding: "6px 12px",
+            borderRadius: "999px",
+            background: getRiskColor(analysis.risk.status),
+            color: "white",
+            fontWeight: "bold",
+          }}
+        >
+          {analysis.risk.status} (Score: {analysis.risk.score})
+        </span>
       </div>
 
       {/* PATTERNS */}
-      <div>
-        <h3>Recurring Patterns</h3>
+      <div style={cardStyle}>
+        <h3>Recurring Issues</h3>
         {analysis.patterns.length === 0 ? (
           <p>No recurring issues detected 🎉</p>
         ) : (
           <ul>
-            {analysis.patterns.map((p, idx) => (
-              <li key={idx}>
+            {analysis.patterns.map((p, i) => (
+              <li key={i}>
                 {p.message} — <strong>{p.count} times</strong>
               </li>
             ))}
@@ -70,3 +77,26 @@ export default function MLAnalysis({ project }) {
     </div>
   );
 }
+
+function MetricCard({ title, value }) {
+  return (
+    <div
+      style={{
+        padding: "16px",
+        borderRadius: "8px",
+        border: "1px solid #e5e7eb",
+        background: "#fafafa",
+      }}
+    >
+      <p style={{ fontSize: "14px", color: "#6b7280" }}>{title}</p>
+      <h2 style={{ margin: 0 }}>{value}</h2>
+    </div>
+  );
+}
+
+const cardStyle = {
+  padding: "20px",
+  borderRadius: "8px",
+  border: "1px solid #e5e7eb",
+  background: "#ffffff",
+};

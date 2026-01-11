@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import api from "../api/api";
 
 export default function Register() {
@@ -10,21 +11,25 @@ export default function Register() {
 
   const handleRegister = async () => {
     try {
-      await api.post("/auth/register", {
-        name,
-        email,
-        password,
-      });
+      await api.post("/auth/register", { name, email, password });
       setMessage("Registration successful. Please login.");
       setError("");
-    } catch (err) {
+    } catch {
       setError("User already exists or invalid data");
       setMessage("");
     }
   };
 
   return (
-    <div style={{ maxWidth: "300px", margin: "100px auto" }}>
+    <div
+      style={{
+        maxWidth: "350px",
+        margin: "100px auto",
+        padding: "20px",
+        border: "1px solid #ddd",
+        borderRadius: "8px",
+      }}
+    >
       <h2>Register</h2>
 
       <input
@@ -56,6 +61,10 @@ export default function Register() {
 
       {message && <p style={{ color: "green" }}>{message}</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
+
+      <p>
+        Already have an account? <Link to="/">Login</Link>
+      </p>
     </div>
   );
 }
