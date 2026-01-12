@@ -12,7 +12,7 @@ export default function Register() {
   const handleRegister = async () => {
     try {
       await api.post("/auth/register", { name, email, password });
-      setMessage("Registration successful. Please login.");
+      setMessage("Account created. Please login.");
       setError("");
     } catch {
       setError("User already exists or invalid data");
@@ -21,26 +21,41 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
+    <div
+      className="min-h-screen flex items-center justify-center
+      bg-gradient-to-br from-indigo-100 to-purple-200
+      dark:from-gray-900 dark:to-gray-800"
+    >
+      <div
+        className="bg-white dark:bg-gray-900
+        p-8 rounded-xl shadow-xl w-96"
+      >
+        <h2
+          className="text-3xl font-bold text-center mb-6
+          text-indigo-600 dark:text-indigo-400"
+        >
+          Create Account
+        </h2>
 
         <input
-          className="w-full p-2 border rounded mb-3"
+          className="w-full mb-3 p-3 rounded-lg border
+            bg-gray-50 dark:bg-gray-800 dark:border-gray-700"
           placeholder="Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
 
         <input
-          className="w-full p-2 border rounded mb-3"
+          className="w-full mb-3 p-3 rounded-lg border
+            bg-gray-50 dark:bg-gray-800 dark:border-gray-700"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
 
         <input
-          className="w-full p-2 border rounded mb-4"
+          className="w-full mb-4 p-3 rounded-lg border
+            bg-gray-50 dark:bg-gray-800 dark:border-gray-700"
           placeholder="Password"
           type="password"
           value={password}
@@ -49,17 +64,18 @@ export default function Register() {
 
         <button
           onClick={handleRegister}
-          className="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700"
+          className="w-full bg-indigo-600 hover:bg-indigo-700
+            text-white py-3 rounded-lg font-semibold"
         >
           Register
         </button>
 
-        {message && <p className="text-green-600 mt-3">{message}</p>}
+        {message && <p className="text-green-500 mt-3">{message}</p>}
         {error && <p className="text-red-500 mt-3">{error}</p>}
 
-        <p className="text-center mt-4">
+        <p className="text-center mt-4 text-sm">
           Already have an account?{" "}
-          <Link to="/" className="text-blue-600 underline">
+          <Link to="/" className="text-indigo-600 underline">
             Login
           </Link>
         </p>

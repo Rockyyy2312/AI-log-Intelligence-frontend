@@ -4,8 +4,8 @@ import MLAnalysis from "./MLAnalysis";
 
 export default function Dashboard() {
   const [project, setProject] = useState(null);
-  const [darkMode, setDarkMode] = useState(
-    localStorage.getItem("theme") === "dark"
+  const [dark, setDark] = useState(
+    document.documentElement.classList.contains("dark")
   );
 
   useEffect(() => {
@@ -15,24 +15,31 @@ export default function Dashboard() {
   }, []);
 
   const toggleTheme = () => {
-    const newTheme = darkMode ? "light" : "dark";
-    setDarkMode(!darkMode);
-    localStorage.setItem("theme", newTheme);
     document.documentElement.classList.toggle("dark");
+    const isDark = document.documentElement.classList.contains("dark");
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+    setDark(isDark);
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-6">
-      <div className="max-w-6xl mx-auto">
-        <header className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">AI Log Intelligence</h1>
+    <div
+      className="min-h-screen
+      bg-gradient-to-br from-gray-100 to-indigo-100
+      dark:from-gray-900 dark:to-gray-800"
+    >
+      <div className="max-w-7xl mx-auto p-6">
+        <header className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
+            AI Log Intelligence
+          </h1>
 
           <div className="flex gap-3">
             <button
               onClick={toggleTheme}
-              className="px-4 py-2 rounded bg-gray-200 dark:bg-gray-700"
+              className="px-4 py-2 rounded-lg
+                bg-indigo-600 text-white"
             >
-              {darkMode ? "☀️ Light" : "🌙 Dark"}
+              {dark ? "☀ Light" : "🌙 Dark"}
             </button>
 
             <button
@@ -40,7 +47,8 @@ export default function Dashboard() {
                 localStorage.removeItem("token");
                 window.location.href = "/";
               }}
-              className="bg-red-500 text-white px-4 py-2 rounded"
+              className="px-4 py-2 rounded-lg
+                bg-red-500 text-white"
             >
               Logout
             </button>
@@ -53,7 +61,7 @@ export default function Dashboard() {
           <>
             <button
               onClick={() => setProject(null)}
-              className="mb-4 text-blue-500 underline"
+              className="mb-6 text-indigo-600 underline"
             >
               ← Change Project
             </button>

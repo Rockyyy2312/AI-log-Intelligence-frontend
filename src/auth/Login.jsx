@@ -18,37 +18,51 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+    <div className="min-h-screen flex items-center justify-center
+      bg-gradient-to-br from-indigo-100 to-purple-200
+      dark:from-gray-900 dark:to-gray-800">
+
+      <div className="bg-white dark:bg-gray-900
+        p-8 rounded-xl shadow-xl w-96">
+
+        <h2 className="text-3xl font-bold text-center mb-2
+          text-indigo-600 dark:text-indigo-400">
+          AI Log Intelligence
+        </h2>
+
+        <p className="text-center text-gray-500 mb-6">
+          Sign in to your dashboard
+        </p>
 
         <input
-          className="w-full p-2 border rounded mb-3"
+          className="w-full mb-3 p-3 rounded-lg border
+            bg-gray-50 dark:bg-gray-800 dark:border-gray-700"
           placeholder="Email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={e => setEmail(e.target.value)}
         />
 
         <input
-          className="w-full p-2 border rounded mb-4"
+          className="w-full mb-4 p-3 rounded-lg border
+            bg-gray-50 dark:bg-gray-800 dark:border-gray-700"
           placeholder="Password"
           type="password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={e => setPassword(e.target.value)}
         />
 
         <button
           onClick={handleLogin}
-          className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
-        >
+          className="w-full bg-indigo-600 hover:bg-indigo-700
+            text-white py-3 rounded-lg font-semibold">
           Login
         </button>
 
         {error && <p className="text-red-500 mt-3">{error}</p>}
 
-        <p className="text-center mt-4">
+        <p className="text-center mt-4 text-sm">
           Don’t have an account?{" "}
-          <Link to="/register" className="text-blue-600 underline">
+          <Link to="/register" className="text-indigo-600 underline">
             Register
           </Link>
         </p>
