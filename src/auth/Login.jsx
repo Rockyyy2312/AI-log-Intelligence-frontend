@@ -18,15 +18,19 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center
+    <div
+      className="min-h-screen flex items-center justify-center
       bg-gradient-to-br from-indigo-100 to-purple-200
-      dark:from-gray-900 dark:to-gray-800">
-
-      <div className="bg-white dark:bg-gray-900
-        p-8 rounded-xl shadow-xl w-96">
-
-        <h2 className="text-3xl font-bold text-center mb-2
-          text-indigo-600 dark:text-indigo-400">
+      dark:from-gray-900 dark:to-gray-800"
+    >
+      <div
+        className="bg-white dark:bg-gray-900
+        p-8 rounded-xl shadow-xl w-96"
+      >
+        <h2
+          className="text-3xl font-bold text-center mb-2
+          text-indigo-600 dark:text-indigo-400"
+        >
           AI Log Intelligence
         </h2>
 
@@ -39,7 +43,7 @@ export default function Login() {
             bg-gray-50 dark:bg-gray-800 dark:border-gray-700"
           placeholder="Email"
           value={email}
-          onChange={e => setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value)}
         />
 
         <input
@@ -48,13 +52,14 @@ export default function Login() {
           placeholder="Password"
           type="password"
           value={password}
-          onChange={e => setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
         />
 
         <button
           onClick={handleLogin}
           className="w-full bg-indigo-600 hover:bg-indigo-700
-            text-white py-3 rounded-lg font-semibold">
+            text-white py-3 rounded-lg font-semibold"
+        >
           Login
         </button>
 
@@ -67,6 +72,7 @@ export default function Login() {
           </Link>
         </p>
       </div>
+      
     </div>
   );
 }
