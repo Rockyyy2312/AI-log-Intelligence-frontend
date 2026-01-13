@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import api from "../api/api";
 import { motion } from "framer-motion";
+import { Trash2 } from "lucide-react";
 
 export default function ProjectList({ onSelect }) {
   const [projects, setProjects] = useState([]);
   const [newProject, setNewProject] = useState("");
-  const [uploadingProjectId, setUploadingProjectId] = useState(null);
   const [file, setFile] = useState(null);
+  const [uploadingId, setUploadingId] = useState(null);
 
   const fetchProjects = async () => {
     const res = await api.get("/projects");
@@ -23,7 +24,6 @@ export default function ProjectList({ onSelect }) {
     fetchProjects();
   }, []);
 
-  // Create project from UI
   const createProject = async () => {
     if (!newProject.trim()) return;
     await api.post("/projects", { name: newProject });
@@ -31,28 +31,29 @@ export default function ProjectList({ onSelect }) {
     fetchProjects();
   };
 
-  // Upload logs from UI
   const uploadLogs = async (projectId) => {
     if (!file) return;
-
     const formData = new FormData();
     formData.append("logfile", file);
     formData.append("projectId", projectId);
 
-    setUploadingProjectId(projectId);
+    setUploadingId(projectId);
     await api.post("/logs/upload", formData);
-    setUploadingProjectId(null);
+    setUploadingId(null);
     setFile(null);
+    alert("Logs uploaded");
+  };
 
-    alert("Logs uploaded successfully");
+  const deleteProject = async (projectId) => {
+    const confirm = window.confirm("Delete this project and all its logs?");
+    if (!confirm) return;
+
+    await api.delete(`/projects/${projectId}`);
+    fetchProjects();
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-    >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       {/* CREATE PROJECT */}
       <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow mb-6">
         <h3 className="font-semibold mb-2">Create New Project</h3>
@@ -72,19 +73,16 @@ export default function ProjectList({ onSelect }) {
         </div>
       </div>
 
-      <h3 className="text-xl font-semibold mb-4">Your Projects</h3>
-
+      {/* PROJECTS */}
       <div className="grid grid-cols-2 gap-4">
         {projects.map((project, index) => (
           <motion.div
             key={project._id}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            whileHover={{ scale: 1.03 }}
+            transition={{ delay: index * 0.05 }}
             className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow"
           >
-            {/* SELECT PROJECT */}
             <div
               onClick={() => onSelect(project)}
               className="cursor-pointer mb-2"
@@ -93,25 +91,29 @@ export default function ProjectList({ onSelect }) {
               <p className="text-sm text-gray-500">Click to view analytics</p>
             </div>
 
-            {/* UPLOAD LOGS */}
-            <div className="mt-3">
-              <input
-                type="file"
-                accept=".log,.txt"
-                onChange={(e) => setFile(e.target.files[0])}
-                className="text-sm"
-              />
+            <input
+              type="file"
+              accept=".log,.txt"
+              onChange={(e) => setFile(e.target.files[0])}
+              className="text-sm"
+            />
 
-              <button
-                onClick={() => uploadLogs(project._id)}
-                disabled={uploadingProjectId === project._id}
-                className="mt-2 w-full bg-green-600 text-white py-1 rounded"
-              >
-                {uploadingProjectId === project._id
-                  ? "Uploading..."
-                  : "Upload Logs"}
-              </button>
-            </div>
+            <button
+              onClick={() => uploadLogs(project._id)}
+              disabled={uploadingId === project._id}
+              className="mt-2 w-full bg-green-600 text-white py-1 rounded"
+            >
+              {uploadingId === project._id ? "Uploading..." : "Upload Logs"}
+            </button>
+
+            {/* DELETE */}
+            <button
+              onClick={() => deleteProject(project._id)}
+              className="mt-2 w-full flex items-center justify-center gap-2 text-red-500 hover:text-red-600"
+            >
+              <Trash2 size={16} />
+              Delete Project
+            </button>
           </motion.div>
         ))}
       </div>
