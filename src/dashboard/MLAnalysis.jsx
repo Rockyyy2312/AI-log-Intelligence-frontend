@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../api/api";
 import LogTimeline from "./LogTimeline";
-import { motion } from "framer-motion";
+import AnalysisTable from "./AnalysisTable";
 import {
   BarChart,
   Bar,
@@ -17,15 +17,33 @@ const COLORS = ["#22c55e", "#ef4444"];
 
 export default function MLAnalysis({ project }) {
   const [analysis, setAnalysis] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     api
       .get(`/logs/${project._id}/ml-full`)
-      .then((res) => setAnalysis(res.data.analysis));
+      .then((res) => {
+        setAnalysis(res.data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, [project]);
 
-  if (!analysis) {
+  if (loading) {
     return <p className="text-gray-500">Analyzing logs…</p>;
+  }
+
+  // ✅ FRIENDLY EMPTY STATE
+  if (analysis.summary.total_logs === 0) {
+    return (
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow text-center">
+        <h3 className="text-lg font-semibold mb-2">No Logs Found</h3>
+        <p className="text-gray-500">
+          Upload log files for this project to see analytics.
+        </p>
+      </div>
+    );
   }
 
   const barData = [
@@ -36,74 +54,64 @@ export default function MLAnalysis({ project }) {
     },
   ];
 
+  const pieData = barData;
+
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="space-y-10"
-    >
-      <div className="grid grid-cols-3 gap-4">
-        {[
-          ["Total Logs", analysis.summary.total_logs],
-          ["Error Logs", analysis.summary.error_logs],
-          ["Error Rate", `${analysis.summary.error_rate}%`],
-        ].map(([title, value], i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-            className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow"
+    <div className="grid grid-cols-12 gap-6">
+      {/* METRICS */}
+      <Metric title="Total Logs" value={analysis.summary.total_logs} />
+      <Metric title="Error Logs" value={analysis.summary.error_logs} />
+      <Metric title="Error Rate" value={`${analysis.summary.error_rate}%`} />
+
+      {/* BAR CHART */}
+      <div className="col-span-6 bg-white dark:bg-gray-800 rounded-xl shadow p-4">
+        <h3 className="font-semibold mb-3">Error Distribution</h3>
+        <BarChart width={350} height={250} data={barData}>
+          <XAxis dataKey="name" />
+          <YAxis />
+          <Tooltip />
+          <Bar dataKey="value" fill="#6366f1" />
+        </BarChart>
+      </div>
+
+      {/* PIE CHART */}
+      <div className="col-span-6 bg-white dark:bg-gray-800 rounded-xl shadow p-4">
+        <h3 className="font-semibold mb-3">Log Composition</h3>
+        <PieChart width={350} height={250}>
+          <Pie
+            data={pieData}
+            dataKey="value"
+            cx="50%"
+            cy="50%"
+            outerRadius={90}
+            label
           >
-            <p className="text-sm text-gray-500">{title}</p>
-            <h2 className="text-2xl font-bold">{value}</h2>
-          </motion.div>
-        ))}
+            {pieData.map((_, i) => (
+              <Cell key={i} fill={COLORS[i]} />
+            ))}
+          </Pie>
+          <Tooltip />
+        </PieChart>
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
-        <motion.div
-          whileHover={{ scale: 1.02 }}
-          className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow"
-        >
-          <BarChart width={300} height={250} data={barData}>
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="value" fill="#6366f1" />
-          </BarChart>
-        </motion.div>
-
-        <motion.div
-          whileHover={{ scale: 1.02 }}
-          className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow"
-        >
-          <PieChart width={300} height={250}>
-            <Pie
-              data={barData}
-              dataKey="value"
-              cx="50%"
-              cy="50%"
-              outerRadius={80}
-              label
-            >
-              {barData.map((_, i) => (
-                <Cell key={i} fill={COLORS[i]} />
-              ))}
-            </Pie>
-            <Tooltip />
-          </PieChart>
-        </motion.div>
+      {/* ANALYSIS TABLE */}
+      <div className="col-span-12">
+        <AnalysisTable analysis={analysis} />
       </div>
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
-      >
+      {/* LOG TIMELINE */}
+      <div className="col-span-12">
         <LogTimeline projectId={project._id} />
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
+  );
+}
+
+function Metric({ title, value }) {
+  return (
+    <div className="col-span-4 bg-white dark:bg-gray-800 rounded-xl shadow p-4">
+      <p className="text-sm text-gray-500">{title}</p>
+      <h2 className="text-2xl font-bold">{value}</h2>
+    </div>
   );
 }
