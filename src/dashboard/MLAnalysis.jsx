@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../api/api";
 import LogTimeline from "./LogTimeline";
 import AnalysisTable from "./AnalysisTable";
+import ErrorTimeSeries from "./ErrorTimeSeries";
 import {
   BarChart,
   Bar,
@@ -13,41 +14,37 @@ import {
   Cell,
 } from "recharts";
 
-const COLORS = ["#ef4444", "#22c55e"];
+const COLORS = ["#22c55e", "#ef4444"];
 
 export default function MLAnalysis({ project, refreshKey }) {
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 🛡️ SAFETY GUARD
-  if (!project?._id) {
-    return <p className="text-gray-500">Loading project...</p>;
-  }
-
   useEffect(() => {
-    setLoading(true);
-
-    api
-      .get(`/logs/${project._id}/ml-full`)
-      .then((res) => {
+    const fetchAnalysis = async () => {
+      try {
+        setLoading(true);
+        const res = await api.get(`/logs/${project._id}/ml-full`);
         setAnalysis(res.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
         setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, [project._id, refreshKey]);
+      }
+    };
+
+    fetchAnalysis();
+  }, [project, refreshKey]);
 
   if (loading) {
     return <p className="text-gray-500">Analyzing logs…</p>;
   }
 
-  // ✅ EMPTY STATE
   if (!analysis || analysis.summary.total_logs === 0) {
     return (
       <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow text-center">
         <h3 className="text-lg font-semibold mb-2">No Logs Found</h3>
-        <p className="text-gray-500">
-          Upload log files for this project to see analytics.
-        </p>
+        <p className="text-gray-500">Upload logs to start analysis.</p>
       </div>
     );
   }
@@ -98,12 +95,17 @@ export default function MLAnalysis({ project, refreshKey }) {
         </PieChart>
       </div>
 
-      {/* ANALYSIS TABLE */}
+      {/* 🔥 TIME-SERIES */}
+      <div className="col-span-12">
+        <ErrorTimeSeries projectId={project._id} refreshKey={refreshKey} />
+      </div>
+
+      {/* TABLE */}
       <div className="col-span-12">
         <AnalysisTable analysis={analysis} />
       </div>
 
-      {/* LIVE LOG TIMELINE */}
+      {/* LOG TIMELINE */}
       <div className="col-span-12">
         <LogTimeline projectId={project._id} />
       </div>
