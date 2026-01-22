@@ -13,14 +13,20 @@ import {
   Cell,
 } from "recharts";
 
-const COLORS = ["#22c55e", "#ef4444"];
+const COLORS = ["#ef4444", "#22c55e"];
 
-export default function MLAnalysis({ project }) {
+export default function MLAnalysis({ project, refreshKey }) {
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // 🛡️ SAFETY GUARD
+  if (!project?._id) {
+    return <p className="text-gray-500">Loading project...</p>;
+  }
+
   useEffect(() => {
     setLoading(true);
+
     api
       .get(`/logs/${project._id}/ml-full`)
       .then((res) => {
@@ -28,14 +34,14 @@ export default function MLAnalysis({ project }) {
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, [project]);
+  }, [project._id, refreshKey]);
 
   if (loading) {
     return <p className="text-gray-500">Analyzing logs…</p>;
   }
 
-  // ✅ FRIENDLY EMPTY STATE
-  if (analysis.summary.total_logs === 0) {
+  // ✅ EMPTY STATE
+  if (!analysis || analysis.summary.total_logs === 0) {
     return (
       <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow text-center">
         <h3 className="text-lg font-semibold mb-2">No Logs Found</h3>
@@ -53,8 +59,6 @@ export default function MLAnalysis({ project }) {
       value: analysis.summary.total_logs - analysis.summary.error_logs,
     },
   ];
-
-  const pieData = barData;
 
   return (
     <div className="grid grid-cols-12 gap-6">
@@ -79,14 +83,14 @@ export default function MLAnalysis({ project }) {
         <h3 className="font-semibold mb-3">Log Composition</h3>
         <PieChart width={350} height={250}>
           <Pie
-            data={pieData}
+            data={barData}
             dataKey="value"
             cx="50%"
             cy="50%"
             outerRadius={90}
             label
           >
-            {pieData.map((_, i) => (
+            {barData.map((_, i) => (
               <Cell key={i} fill={COLORS[i]} />
             ))}
           </Pie>
@@ -99,7 +103,7 @@ export default function MLAnalysis({ project }) {
         <AnalysisTable analysis={analysis} />
       </div>
 
-      {/* LOG TIMELINE */}
+      {/* LIVE LOG TIMELINE */}
       <div className="col-span-12">
         <LogTimeline projectId={project._id} />
       </div>

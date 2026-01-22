@@ -3,18 +3,40 @@ import ProjectList from "./ProjectList";
 import MLAnalysis from "./MLAnalysis";
 import Sidebar from "../layout/Sidebar";
 import { motion } from "framer-motion";
+import socket from "../socket";
 
 export default function Dashboard() {
   const [project, setProject] = useState(null);
   const [dark, setDark] = useState(
-    document.documentElement.classList.contains("dark")
+    document.documentElement.classList.contains("dark"),
   );
+
+  // 🔴 NEW: used to force refresh of stats
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     if (!localStorage.getItem("token")) {
       window.location.href = "/";
     }
   }, []);
+
+  // 🔴 NEW: listen for backend "logs-updated" event
+  useEffect(() => {
+    if (!project) return;
+
+    socket.connect();
+    socket.emit("join-project", project._id);
+
+    socket.on("logs-updated", () => {
+      // 🔥 force MLAnalysis to re-fetch stats
+      setRefreshKey((prev) => prev + 1);
+    });
+
+    return () => {
+      socket.off("logs-updated");
+      socket.disconnect();
+    };
+  }, [project]);
 
   const toggleTheme = () => {
     document.documentElement.classList.toggle("dark");
@@ -71,7 +93,8 @@ export default function Dashboard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
             >
-              <MLAnalysis project={project} />
+              {/* 🔴 PASS refreshKey */}
+              <MLAnalysis project={project} refreshKey={refreshKey} />
             </motion.div>
           </>
         )}
