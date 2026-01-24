@@ -2,120 +2,170 @@ import { useEffect, useState } from "react";
 import api from "../api/api";
 import LogTimeline from "./LogTimeline";
 import AnalysisTable from "./AnalysisTable";
-import ErrorTimeSeries from "./ErrorTimeSeries";
 import {
   BarChart,
   Bar,
   XAxis,
   YAxis,
   Tooltip,
-  PieChart,
-  Pie,
-  Cell,
+  LineChart,
+  Line,
+  CartesianGrid,
+  ResponsiveContainer,
 } from "recharts";
-
-const COLORS = ["#22c55e", "#ef4444"];
 
 export default function MLAnalysis({ project, refreshKey }) {
   const [analysis, setAnalysis] = useState(null);
+  const [timeSeries, setTimeSeries] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
 
+  // ================= FETCH ANALYTICS =================
   useEffect(() => {
-    const fetchAnalysis = async () => {
+    if (!project) return;
+
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const res = await api.get(`/logs/${project._id}/ml-full`);
-        setAnalysis(res.data);
+
+        const [analysisRes, tsRes] = await Promise.all([
+          api.get(`/logs/${project._id}/ml-full`),
+          api.get(`/logs/${project._id}/error-timeseries`),
+        ]);
+
+        setAnalysis(analysisRes.data);
+        setTimeSeries(tsRes.data);
+        setLoading(false);
       } catch (err) {
         console.error(err);
-      } finally {
         setLoading(false);
       }
     };
 
-    fetchAnalysis();
+    fetchData();
   }, [project, refreshKey]);
 
-  if (loading) {
-    return <p className="text-gray-500">Analyzing logs…</p>;
-  }
+  // ================= UPLOAD =================
+  const handleUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-  if (!analysis || analysis.summary.total_logs === 0) {
-    return (
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow text-center">
-        <h3 className="text-lg font-semibold mb-2">No Logs Found</h3>
-        <p className="text-gray-500">Upload logs to start analysis.</p>
-      </div>
-    );
-  }
+    const formData = new FormData();
+    formData.append("logfile", file);
+    formData.append("projectId", project._id);
 
-  const barData = [
-    { name: "Errors", value: analysis.summary.error_logs },
-    {
-      name: "Non Errors",
-      value: analysis.summary.total_logs - analysis.summary.error_logs,
-    },
-  ];
+    try {
+      setUploading(true);
 
+      await api.post("/logs/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      setUploading(false);
+      window.location.reload(); // safe for now
+    } catch (err) {
+      console.error(err);
+      setUploading(false);
+      alert("Upload failed");
+    }
+  };
+
+  // ================= UI =================
   return (
-    <div className="grid grid-cols-12 gap-6">
-      {/* METRICS */}
-      <Metric title="Total Logs" value={analysis.summary.total_logs} />
-      <Metric title="Error Logs" value={analysis.summary.error_logs} />
-      <Metric title="Error Rate" value={`${analysis.summary.error_rate}%`} />
-
-      {/* BAR CHART */}
-      <div className="col-span-6 bg-white dark:bg-gray-800 rounded-xl shadow p-4">
-        <h3 className="font-semibold mb-3">Error Distribution</h3>
-        <BarChart width={350} height={250} data={barData}>
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip />
-          <Bar dataKey="value" fill="#6366f1" />
-        </BarChart>
+    <div className="space-y-10">
+      {/* ================= UPLOAD ALWAYS VISIBLE ================= */}
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow">
+        <h3 className="text-lg font-semibold mb-2">Upload & Analyze Logs</h3>
+        <input
+          type="file"
+          accept=".log,.txt"
+          onChange={handleUpload}
+          disabled={uploading}
+        />
+        {uploading && (
+          <p className="text-indigo-500 text-sm mt-2">Uploading & analyzing…</p>
+        )}
       </div>
 
-      {/* PIE CHART */}
-      <div className="col-span-6 bg-white dark:bg-gray-800 rounded-xl shadow p-4">
-        <h3 className="font-semibold mb-3">Log Composition</h3>
-        <PieChart width={350} height={250}>
-          <Pie
-            data={barData}
-            dataKey="value"
-            cx="50%"
-            cy="50%"
-            outerRadius={90}
-            label
-          >
-            {barData.map((_, i) => (
-              <Cell key={i} fill={COLORS[i]} />
-            ))}
-          </Pie>
-          <Tooltip />
-        </PieChart>
-      </div>
+      {/* ================= LOADING ================= */}
+      {loading && <p className="text-gray-500">Analyzing logs…</p>}
 
-      {/* 🔥 TIME-SERIES */}
-      <div className="col-span-12">
-        <ErrorTimeSeries projectId={project._id} refreshKey={refreshKey} />
-      </div>
+      {/* ================= EMPTY STATE ================= */}
+      {!loading && analysis?.summary.total_logs === 0 && (
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow text-center">
+          <p className="text-gray-500">No logs uploaded yet.</p>
+        </div>
+      )}
 
-      {/* TABLE */}
-      <div className="col-span-12">
-        <AnalysisTable analysis={analysis} />
-      </div>
+      {/* ================= ANALYTICS ================= */}
+      {!loading && analysis?.summary.total_logs > 0 && (
+        <>
+          {/* METRICS */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Metric title="Total Logs" value={analysis.summary.total_logs} />
+            <Metric title="Error Logs" value={analysis.summary.error_logs} />
+            <Metric
+              title="Error Rate"
+              value={`${analysis.summary.error_rate}%`}
+            />
+          </div>
 
-      {/* LOG TIMELINE */}
-      <div className="col-span-12">
-        <LogTimeline projectId={project._id} />
-      </div>
+          {/* CHARTS */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow">
+              <h3 className="font-semibold mb-4">Error Distribution</h3>
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart
+                  data={[
+                    { name: "Errors", value: analysis.summary.error_logs },
+                    {
+                      name: "Non Errors",
+                      value:
+                        analysis.summary.total_logs -
+                        analysis.summary.error_logs,
+                    },
+                  ]}
+                  barSize={36}
+                >
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#6366f1" radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow">
+              <h3 className="font-semibold mb-4">Error Trend Over Time</h3>
+              <ResponsiveContainer width="100%" height={260}>
+                <LineChart data={timeSeries}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="time" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line
+                    type="monotone"
+                    dataKey="errors"
+                    stroke="#ef4444"
+                    strokeWidth={3}
+                    dot={{ r: 4 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <AnalysisTable analysis={analysis} />
+          <LogTimeline projectId={project._id} />
+        </>
+      )}
     </div>
   );
 }
 
 function Metric({ title, value }) {
   return (
-    <div className="col-span-4 bg-white dark:bg-gray-800 rounded-xl shadow p-4">
+    <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow">
       <p className="text-sm text-gray-500">{title}</p>
       <h2 className="text-2xl font-bold">{value}</h2>
     </div>

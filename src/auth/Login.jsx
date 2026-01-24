@@ -11,7 +11,7 @@ export default function Login() {
     try {
       const res = await api.post("/auth/login", { email, password });
       localStorage.setItem("token", res.data.token);
-      window.location.href = "/dashboard";
+      window.location.href = "/";
     } catch {
       setError("Invalid credentials");
     }
@@ -24,7 +24,7 @@ export default function Login() {
       });
 
       localStorage.setItem("token", res.data.token);
-      window.location.href = "/dashboard";
+      window.location.href = "/";
     } catch {
       setError("Google login failed");
     }

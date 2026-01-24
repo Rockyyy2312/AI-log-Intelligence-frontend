@@ -10,68 +10,55 @@ const levelColor = (level) => {
 
 export default function LogTimeline({ projectId }) {
   const [logs, setLogs] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!projectId) return;
+    let mounted = true;
 
-    setLoading(true);
+    const loadLogs = async () => {
+      const res = await api.get(`/logs/${projectId}`);
+      if (mounted) setLogs(res.data);
+    };
 
-    // 1️⃣ Fetch existing logs (REST)
-    api
-      .get(`/logs/${projectId}`)
-      .then((res) => {
-        setLogs(res.data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+    loadLogs();
 
-    // 2️⃣ Connect socket + join project room
-    socket.connect();
+    if (!socket.connected) {
+      socket.connect();
+    }
+
     socket.emit("join-project", projectId);
 
-    // 3️⃣ Listen for real-time logs
     socket.on("new-log", (log) => {
+      console.log("📥 Received log:", log.message);
       setLogs((prev) => [log, ...prev]);
     });
 
-    // 4️⃣ Cleanup on project change / unmount
     return () => {
-      socket.off("new-log");
-      socket.disconnect();
+      mounted = false;
+      socket.off("new-log"); // ✅ DO NOT DISCONNECT
     };
   }, [projectId]);
 
-  if (loading) return <p>Loading logs...</p>;
-  if (logs.length === 0) return <p>No logs available</p>;
+  if (logs.length === 0) return <p>No logs yet</p>;
 
   return (
     <div className="bg-white dark:bg-gray-800 p-4 rounded shadow max-h-[400px] overflow-y-auto">
-      <h3 className="font-semibold mb-3">Live Log Stream</h3>
-
-      <div className="space-y-3">
-        {logs.map((log, index) => (
-          <div
-            key={log._id || index}
-            className="flex items-start gap-3 border-b border-gray-200 dark:border-gray-700 pb-2"
+      {logs.map((log) => (
+        <div key={log._id} className="flex gap-3 border-b pb-2">
+          <span
+            className={`text-xs px-2 py-1 rounded text-white ${levelColor(
+              log.level,
+            )}`}
           >
-            <span
-              className={`text-white text-xs px-2 py-1 rounded ${levelColor(
-                log.level,
-              )}`}
-            >
-              {log.level}
-            </span>
-
-            <div>
-              <p className="text-sm">{log.message}</p>
-              <p className="text-xs text-gray-500">
-                {new Date(log.createdAt).toLocaleString()}
-              </p>
-            </div>
+            {log.level}
+          </span>
+          <div>
+            <p className="text-sm">{log.message}</p>
+            <p className="text-xs text-gray-500">
+              {new Date(log.createdAt).toLocaleString()}
+            </p>
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
     </div>
   );
 }
