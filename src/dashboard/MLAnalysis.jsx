@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import api from "../api/api";
 import LogTimeline from "./LogTimeline";
 import AnalysisTable from "./AnalysisTable";
@@ -14,7 +15,9 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-export default function MLAnalysis({ project, refreshKey }) {
+export default function MLAnalysis() {
+  const { projectId } = useParams();
+
   const [analysis, setAnalysis] = useState(null);
   const [timeSeries, setTimeSeries] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,15 +25,15 @@ export default function MLAnalysis({ project, refreshKey }) {
 
   // ================= FETCH ANALYTICS =================
   useEffect(() => {
-    if (!project) return;
+    if (!projectId) return;
 
     const fetchData = async () => {
       try {
         setLoading(true);
 
         const [analysisRes, tsRes] = await Promise.all([
-          api.get(`/logs/${project._id}/ml-full`),
-          api.get(`/logs/${project._id}/error-timeseries`),
+          api.get(`/logs/${projectId}/ml-full`),
+          api.get(`/logs/${projectId}/error-timeseries`),
         ]);
 
         setAnalysis(analysisRes.data);
@@ -43,7 +46,7 @@ export default function MLAnalysis({ project, refreshKey }) {
     };
 
     fetchData();
-  }, [project, refreshKey]);
+  }, [projectId]);
 
   // ================= UPLOAD =================
   const handleUpload = async (e) => {
@@ -52,7 +55,7 @@ export default function MLAnalysis({ project, refreshKey }) {
 
     const formData = new FormData();
     formData.append("logfile", file);
-    formData.append("projectId", project._id);
+    formData.append("projectId", projectId);
 
     try {
       setUploading(true);
@@ -62,7 +65,7 @@ export default function MLAnalysis({ project, refreshKey }) {
       });
 
       setUploading(false);
-      window.location.reload(); // safe for now
+      window.location.reload(); // OK for now
     } catch (err) {
       console.error(err);
       setUploading(false);
@@ -73,7 +76,7 @@ export default function MLAnalysis({ project, refreshKey }) {
   // ================= UI =================
   return (
     <div className="space-y-10">
-      {/* ================= UPLOAD ALWAYS VISIBLE ================= */}
+      {/* UPLOAD */}
       <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow">
         <h3 className="text-lg font-semibold mb-2">Upload & Analyze Logs</h3>
         <input
@@ -87,17 +90,14 @@ export default function MLAnalysis({ project, refreshKey }) {
         )}
       </div>
 
-      {/* ================= LOADING ================= */}
       {loading && <p className="text-gray-500">Analyzing logs…</p>}
 
-      {/* ================= EMPTY STATE ================= */}
       {!loading && analysis?.summary.total_logs === 0 && (
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow text-center">
           <p className="text-gray-500">No logs uploaded yet.</p>
         </div>
       )}
 
-      {/* ================= ANALYTICS ================= */}
       {!loading && analysis?.summary.total_logs > 0 && (
         <>
           {/* METRICS */}
@@ -125,7 +125,7 @@ export default function MLAnalysis({ project, refreshKey }) {
                         analysis.summary.error_logs,
                     },
                   ]}
-                  barSize={36}
+                  barSize={28}
                 >
                   <XAxis dataKey="name" />
                   <YAxis />
@@ -156,7 +156,7 @@ export default function MLAnalysis({ project, refreshKey }) {
           </div>
 
           <AnalysisTable analysis={analysis} />
-          <LogTimeline projectId={project._id} />
+          <LogTimeline projectId={projectId} />
         </>
       )}
     </div>

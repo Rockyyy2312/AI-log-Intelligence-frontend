@@ -1,32 +1,32 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 
-/* AUTH */
+/* ================= AUTH ================= */
 import Login from "./auth/Login";
 import Register from "./auth/Register";
 
-/* DASHBOARD LAYOUT */
+/* ================= DASHBOARD LAYOUT ================= */
 import Dashboard from "./dashboard/Dashboard";
 
-/* PAGES */
+/* ================= PAGES ================= */
 import Overview from "./pages/Overview";
 import Projects from "./pages/Projects";
+import ProjectAnalytics from "./pages/ProjectAnalytics";
 import Settings from "./pages/Settings";
 
-/* AUTH GUARD */
+/* ================= AUTH GUARD ================= */
 function RequireAuth({ children }) {
   const token = localStorage.getItem("token");
-  if (!token) return <Navigate to="/login" replace />;
-  return children;
+  return token ? children : <Navigate to="/login" replace />;
 }
 
 export default function App() {
   return (
     <Routes>
-      {/* ========= AUTH (NO DASHBOARD) ========= */}
+      {/* ========== AUTH ROUTES (NO SIDEBAR) ========== */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-      {/* ========= APP (PROTECTED) ========= */}
+      {/* ========== PROTECTED DASHBOARD ========== */}
       <Route
         path="/"
         element={
@@ -35,13 +35,20 @@ export default function App() {
           </RequireAuth>
         }
       >
+        {/* Default */}
         <Route index element={<Navigate to="overview" replace />} />
+
+        {/* Pages */}
         <Route path="overview" element={<Overview />} />
         <Route path="projects" element={<Projects />} />
+
+        {/* 🔥 PROJECT ANALYTICS (THIS WAS MISSING EARLIER) */}
+        <Route path="projects/:projectId" element={<ProjectAnalytics />} />
+
         <Route path="settings" element={<Settings />} />
       </Route>
 
-      {/* ========= FALLBACK ========= */}
+      {/* ========== FALLBACK ========== */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
