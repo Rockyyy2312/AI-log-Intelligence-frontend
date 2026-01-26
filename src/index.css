@@ -1,3 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans bg-slate-50 text-slate-900 antialiased overflow-x-hidden;
+  }
+  
+  /* Dark mode support if class 'dark' is added to html */
+  .dark body {
+    @apply bg-slate-950 text-slate-100;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg shadow-sm transition-all duration-200 font-medium;
+  }
+  
+  .card {
+    @apply bg-white dark:bg-slate-900 rounded-xl shadow-card border border-slate-100 dark:border-slate-800 p-6;
+  }
+}

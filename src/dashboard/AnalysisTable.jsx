@@ -9,22 +9,21 @@ export default function AnalysisTable({ analysis }) {
   ];
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-      <h3 className="text-lg font-semibold mb-4">Analysis Summary</h3>
+    <div className="bg-white dark:bg-slate-900 rounded-xl shadow-soft border border-slate-200 dark:border-slate-800 p-6">
+      <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Analysis Summary</h3>
 
-      <table className="w-full text-sm">
-        <tbody>
-          {rows.map((row, i) => (
-            <tr
-              key={i}
-              className="border-b dark:border-gray-700 last:border-none"
-            >
-              <td className="py-3 text-gray-500">{row.label}</td>
-              <td className="py-3 font-semibold text-right">{row.value}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="overflow-hidden rounded-lg border border-slate-200 dark:border-slate-800">
+        <table className="w-full text-sm divide-y divide-slate-200 dark:divide-slate-800">
+          <tbody className="divide-y divide-slate-200 dark:divide-slate-800 bg-white dark:bg-slate-900">
+            {rows.map((row, i) => (
+              <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                <td className="py-4 px-6 font-medium text-slate-500 dark:text-slate-400">{row.label}</td>
+                <td className="py-4 px-6 font-bold text-slate-900 dark:text-white text-right">{row.value}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
