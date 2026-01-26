@@ -12,6 +12,7 @@ import Overview from "./pages/Overview";
 import Projects from "./pages/Projects";
 import ProjectAnalytics from "./pages/ProjectAnalytics";
 import Settings from "./pages/Settings";
+import LogExplorer from "./pages/LogExplorer";
 
 /* ================= AUTH GUARD ================= */
 function RequireAuth({ children }) {
@@ -41,6 +42,7 @@ export default function App() {
         {/* Pages */}
         <Route path="overview" element={<Overview />} />
         <Route path="projects" element={<Projects />} />
+        <Route path="explorer" element={<LogExplorer />} />
 
         {/* 🔥 PROJECT ANALYTICS (THIS WAS MISSING EARLIER) */}
         <Route path="projects/:projectId" element={<ProjectAnalytics />} />
