@@ -11,6 +11,7 @@ socket.connect();
 
 socket.on("connect", () => {
   console.log("🟢 Frontend socket connected:", socket.id);
+  console.log("🚀 VERSION_DEBUG_1: HashRouter + Link Fixes Applied");
 });
 
 socket.on("connect_error", (err) => {
