@@ -2,6 +2,8 @@
 
 **AI Log Intelligence System** is a comprehensive solution designed to ingest, analyze, and visualize system logs using advanced AI & Machine Learning. It provides real-time insights, anomaly detection, and a modern dashboard for log management.
 
+**[🚀 View Live Demo](https://ai-log-intelligence-frontend.vercel.app/)**
+
 The system consists of three main components:
 1. **Frontend**: A React-based dashboard for visualization and management.
 2. **Intelligence Backend**: A Node.js API for handling data, auth, and real-time events.
