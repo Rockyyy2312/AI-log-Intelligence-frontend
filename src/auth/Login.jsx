@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom"; // ✅ Import Link
 import { GoogleLogin } from "@react-oauth/google";
 import api from "../api/api";
 import { LogIn, Lock, Mail } from "lucide-react";
@@ -110,7 +111,7 @@ export default function Login() {
         </div>
 
         <p className="text-center mt-6 text-sm text-slate-500">
-          Don't have an account? <a href="/register" className="text-primary-600 font-medium hover:underline">Sign up</a>
+          Don't have an account? <Link to="/register" className="text-primary-600 font-medium hover:underline">Sign up</Link>
         </p>
       </div>
     </div>
